@@ -1,0 +1,13 @@
+# Ansible Tower settings for celeryd.
+BROKER_URL = 'amqp://{}:{}@{}:{}/{}'.format(
+    '$RABBITMQ_USER',
+    '$RABBITMQ_PASSWORD',
+    '$RABBITMQ_HOST',
+    '$RABBITMQ_PORT',
+    '$RABBITMQ_VHOST')
+
+CHANNEL_LAYERS = {
+    'default': {'BACKEND': 'asgi_amqp.AMQPChannelLayer',
+                'ROUTING': 'awx.main.routing.channel_routing',
+                'CONFIG': {'url': BROKER_URL}}
+}

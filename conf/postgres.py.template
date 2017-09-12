@@ -1,0 +1,13 @@
+# Ansible Tower database settings.
+
+DATABASES = {
+    'default': {
+        'ATOMIC_REQUESTS': True,
+        'ENGINE': 'transaction_hooks.backends.postgresql_psycopg2',
+        'NAME': '$DATABASE_NAME',
+        'USER': '$DATABASE_USER',
+        'PASSWORD': """$DATABASE_PASSWORD""",
+        'HOST': '$DATABASE_HOST',
+        'PORT': '$DATABASE_PORT',
+    }
+}
