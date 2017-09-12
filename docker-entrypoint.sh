@@ -36,6 +36,8 @@ if [ "$1" = "ansible-tower" ]; then
     sed -i 's/supervisor//g' /etc/default/ansible-tower
     if [[ ! "$DATABASE_HOST" =~ (127\.0\.0\.1|localhost) ]]; then
         sed -i 's/postgresql//g' /etc/default/ansible-tower
+        sed -i "s/pg_host=''/pg_host='$DATABASE_HOST'/g" /opt/ansible-tower-setup-${ANSIBLE_TOWER_VER}/inventory
+        sed -i "s/pg_port=''/pg_port='$DATABASE_PORT'/g" /opt/ansible-tower-setup-${ANSIBLE_TOWER_VER}/inventory
     fi
     if [[ ! "$MEMCACHED_HOST" =~ (127\.0\.0\.1|localhost) ]]; then
         sed -i 's/memcached//g' /etc/default/ansible-tower
@@ -46,10 +48,16 @@ if [ "$1" = "ansible-tower" ]; then
 
     ansible-tower-service start
     if [[ ! "$DATABASE_HOST" =~ (127\.0\.0\.1|localhost) ]]; then
+        echo "Starting database settings migration..."
         tower-manage migrate_to_database_settings --skip-errors
+        echo "Starting database migration..."
         tower-manage migrate --noinput --fake-initial
-        tower-manage create_preload_data
-        echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'root@localhost', 'password')" | awx-manage shell
+        echo "Starting static collections..."
+        tower-manage collectstatic --noinput --clear -v0
+        echo "Creating admin user"
+        echo "from django.contrib.auth.models import User; User.objects.create_superuser('$TOWER_ADMIN_USER', '$TOWER_ADMIN_EMAIL', '$TOWER_ADMIN_PASSWORD')" | awx-manage shell 2> /dev/null
+        #echo "Starting preload data creation..."
+        #tower-manage create_preload_data        
     fi
     supervisord -n -c /etc/supervisor/supervisord.conf
 else

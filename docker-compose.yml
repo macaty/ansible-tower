@@ -10,9 +10,9 @@ services:
       test: ["CMD", "psql", "--username", "awx", "--dbname", "awx", "--quiet", "-c", "SELECT 1;"]
 
   rabbitmq:
-    image: "rabbitmq:3"
+    image: "rabbitmq:3-alpine"
     environment:
-      - "RABBITMQ_DEFAULT_VHOST=awx"
+      - "RABBITMQ_DEFAULT_VHOST=tower"
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
 
@@ -26,8 +26,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    volumes:
+      - ./backup:/backup
     ports:
-      - "443"
+      - "444:443"
     environment:
       - "DATABASE_NAME=awx"
       - "DATABASE_USER=awx"
@@ -37,7 +39,7 @@ services:
       - "RABBITMQ_PASSWORD=guest"
       - "RABBITMQ_HOST=rabbitmq"
       - "RABBITMQ_PORT=5672"
-      - "RABBITMQ_VHOST=awx"
-      - "RABBITMQ_CLUSTER_HOST_ID=awx"
+      - "RABBITMQ_VHOST=tower"
+      - "RABBITMQ_CLUSTER_HOST_ID=tower"
       - "MEMCACHED_HOST=memcached"
       - "MEMCACHED_PORT=11211"

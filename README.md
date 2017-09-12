@@ -1,36 +1,77 @@
-[![](https://images.microbadger.com/badges/image/ybalt/ansible-tower.svg)](https://microbadger.com/images/ybalt/ansible-tower "Get your own image badge on microbadger.com")
+[![](https://images.microbadger.com/badges/image/kakawait/ansible-tower.svg)](https://microbadger.com/images/kakawait/ansible-tower "Get your own image badge on microbadger.com")
 
 # ansible-tower
 
-Dockerfile for standalone [Ansible Tower](https://www.ansible.com/tower) 3.x+
+Dockerfile for [Ansible Tower](https://www.ansible.com/tower) 3.x+
 
 # Build
+
 ```
-docker build --no-cache --squash -t ansible-tower:${TOWER_VERSION} .
+docker build --no-cache -t ansible-tower:${TOWER_VERSION} .
 ```
 
-# Run
+# Run 
+
+## Standalone mode
+
+Standalone mode means everything is running on single container.
 
 Run Ansible Tower with a random port:
+
 ```
-docker run -d -P --name tower ybalt/ansible-tower
+docker run -d -P --name tower kakawait/ansible-tower
 ```
 
 or map to exposed port 443:
+
 ```
-docker run -d -p 443:443 --name tower ybalt/ansible-tower
+docker run -d -p 443:443 --name tower kakawait/ansible-tower
 ```
 
 To include certificate and license on container creation:
+
 ```
 docker run -t -d -v ~/certs:/certs -p 443:443 -e SERVER_NAME=localhost  ansible-tower
 ```
 
 To persist Ansible Tower database, create a data container:
+
 ```
-docker create -v /var/lib/postgresql/9.4/main --name tower-data ybalt/ansible-tower /bin/true
-docker run -d -p 444:443 --name tower --volumes-from tower-data ybalt/ansible-tower
+docker create -v /var/lib/postgresql/9.4/main --name tower-data kakawait/ansible-tower /bin/true
+docker run -d -p 444:443 --name tower --volumes-from tower-data kakawait/ansible-tower
 ```
+
+## Compose mode
+
+Compose mode means _Postgresql_, _Memcached_ and _RabbitMQ_ are running on separate containers.
+
+Run using `docker-compose`
+
+```
+docker-compose up -d
+```
+
+By default `docker-compose.yml` exposes port 443 on random port. Please edit `docker-compose.yml` if you need other behavior.
+
+### Restore in compose mode
+
+```
+docker-compose stop app
+docker run -it --rm --network ansibletower_default --volumes-from ansibletower_app_1 -v $(pwd)/backup:/backup kakawait/ansible-tower ./setup.sh -e 'restore_backup_file=/backup/tower-restore.tar.gz' -r
+docker-compose start app
+```
+
+# Administrator user
+
+Container will create a administration user with following information:
+
+- username: `admin`
+- password: `password`
+- email: `root@localhost`
+
+(Never tested) You can change it by using environment variables: `TOWER_ADMIN_USER`, `TOWER_ADMIN_PASSWORD` and `TOWER_ADMIN_EMAIL`.
+
+**ATTENTION** if you're changing those variables in existing env, that will create another admin user and previous one will still exists.
 
 # Certificates and License
 
