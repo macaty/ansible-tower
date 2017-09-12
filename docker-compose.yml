@@ -1,0 +1,43 @@
+version: '2.1'
+services:
+  postgres:
+    image: "postgres:9.4-alpine"
+    environment:
+      - "POSTGRES_USER=awx"
+      - "POSTGRES_PASSWORD=password"
+      - "POSTGRES_DB=awx"
+    healthcheck:
+      test: ["CMD", "psql", "--username", "awx", "--dbname", "awx", "--quiet", "-c", "SELECT 1;"]
+
+  rabbitmq:
+    image: "rabbitmq:3"
+    environment:
+      - "RABBITMQ_DEFAULT_VHOST=awx"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+
+  memcached:
+    image: "memcached:alpine"
+
+  app:
+    image: "kakawait/ansible-tower"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "443"
+    environment:
+      - "DATABASE_NAME=awx"
+      - "DATABASE_USER=awx"
+      - "DATABASE_PASSWORD=password"
+      - "DATABASE_HOST=postgres"
+      - "RABBITMQ_USER=guest"
+      - "RABBITMQ_PASSWORD=guest"
+      - "RABBITMQ_HOST=rabbitmq"
+      - "RABBITMQ_PORT=5672"
+      - "RABBITMQ_VHOST=awx"
+      - "RABBITMQ_CLUSTER_HOST_ID=awx"
+      - "MEMCACHED_HOST=memcached"
+      - "MEMCACHED_PORT=11211"

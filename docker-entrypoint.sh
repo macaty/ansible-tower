@@ -33,10 +33,19 @@ if [ "$1" = "ansible-tower" ]; then
         chown awx:awx /etc/tower/license
     fi
 
-    sed -i 's/ supervisor//g' /etc/default/ansible-tower
+    sed -i 's/supervisor//g' /etc/default/ansible-tower
+    if [[ ! "$DATABASE_HOST" =~ (127\.0\.0\.1|localhost) ]]; then
+        sed -i 's/postgresql//g' /etc/default/ansible-tower
+    fi
+    if [[ ! "$MEMCACHED_HOST" =~ (127\.0\.0\.1|localhost) ]]; then
+        sed -i 's/memcached//g' /etc/default/ansible-tower
+    fi
+    if [[ ! "$RABBITMQ_HOST" =~ (127\.0\.0\.1|localhost) ]]; then
+        sed -i 's/rabbitmq-server//g' /etc/default/ansible-tower
+    fi
 
     ansible-tower-service start
-    if [[ "$DATABASE_HOST" != "localhost" ]] || [[ "$DATABASE_HOST" != "127.0.0.1" ]]; then
+    if [[ ! "$DATABASE_HOST" =~ (127\.0\.0\.1|localhost) ]]; then
         tower-manage migrate_to_database_settings --skip-errors
         tower-manage migrate --noinput --fake-initial
         tower-manage create_preload_data
