@@ -28,6 +28,7 @@ services:
         condition: service_healthy
     volumes:
       - ./backup:/backup
+      - ./data/ansible-tower:/var/lib/awx
     ports:
       - "444:443"
     environment:
@@ -40,6 +41,6 @@ services:
       - "RABBITMQ_HOST=rabbitmq"
       - "RABBITMQ_PORT=5672"
       - "RABBITMQ_VHOST=tower"
-      - "RABBITMQ_CLUSTER_HOST_ID=tower"
+      - "RABBITMQ_CLUSTER_HOST_ID=localhost"
       - "MEMCACHED_HOST=memcached"
       - "MEMCACHED_PORT=11211"
