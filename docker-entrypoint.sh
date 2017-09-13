@@ -48,10 +48,10 @@ if [ "$1" = "ansible-tower" ]; then
 
     ansible-tower-service start
     if [[ ! "$DATABASE_HOST" =~ (127\.0\.0\.1|localhost) ]]; then
-        echo "Starting database settings migration..."
-        tower-manage migrate_to_database_settings --skip-errors
         echo "Starting database migration..."
         tower-manage migrate --noinput --fake-initial
+        echo "Starting database settings migration..."
+        tower-manage migrate_to_database_settings --skip-errors
         echo "Starting static collections..."
         tower-manage collectstatic --noinput --clear -v0
         echo "Creating admin user"
