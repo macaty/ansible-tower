@@ -3,7 +3,7 @@ FROM ubuntu:xenial
 
 LABEL maintainer thibaud.lepretre@gmail.com, mittell@gmail.com, reuben.stump@gmail.com, ybaltouski@gmail.com
 
-ENV ANSIBLE_TOWER_VER 3.1.4
+ENV ANSIBLE_TOWER_VER 3.1.5
 
 ENV PG_DATA /var/lib/postgresql/9.4/main
 
