@@ -41,26 +41,6 @@ docker create -v /var/lib/postgresql/9.4/main --name tower-data kakawait/ansible
 docker run -d -p 444:443 --name tower --volumes-from tower-data kakawait/ansible-tower
 ```
 
-## Compose mode
-
-Compose mode means _Postgresql_, _Memcached_ and _RabbitMQ_ are running on separate containers.
-
-Run using `docker-compose`
-
-```
-docker-compose up -d
-```
-
-By default `docker-compose.yml` exposes port 443 on random port. Please edit `docker-compose.yml` if you need other behavior.
-
-### Restore in compose mode
-
-```
-docker-compose stop app
-docker run -it --rm --network ansibletower_default --volumes-from ansibletower_app_1 -v $(pwd)/backup:/backup kakawait/ansible-tower ./setup.sh -e 'restore_backup_file=/backup/tower-restore.tar.gz' -r
-docker-compose start app
-```
-
 # Administrator user
 
 Container will create a administration user with following information:
