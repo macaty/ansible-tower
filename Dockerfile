@@ -3,9 +3,9 @@ FROM ubuntu:xenial
 
 LABEL maintainer thibaud.lepretre@gmail.com, mittell@gmail.com, reuben.stump@gmail.com, ybaltouski@gmail.com
 
-ENV ANSIBLE_TOWER_VER 3.1.5
+ENV ANSIBLE_TOWER_VER 3.2.1
 
-ENV PG_DATA /var/lib/postgresql/9.4/main
+ENV PG_DATA /var/lib/postgresql/9.6/main
 
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8

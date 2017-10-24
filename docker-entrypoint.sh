@@ -27,8 +27,10 @@ if [ "$1" = "ansible-tower" ]; then
         cp -r /certs/license /etc/tower/license
         chown awx:awx /etc/tower/license
     fi
-    
+
+    echo "Starting ansible tower services..."
     ansible-tower-service start
+    
     sleep inf & wait
 else
     exec "$@"
