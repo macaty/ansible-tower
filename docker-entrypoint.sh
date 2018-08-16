@@ -28,7 +28,18 @@ if [ "$1" = "ansible-tower" ]; then
         chown awx:awx /etc/tower/license
     fi
 
+    echo "Starting ansible tower database..."
+    cp -a /etc/default/ansible-tower /etc/default/ansible-tower.bak
+    echo "TOWER_SERVICES=\"postgresql\"" > /etc/default/ansible-tower
+    ansible-tower-service start    
+
+    echo "Starting database migration..."
+    tower-manage migrate --noinput --fake-initial
+    echo "Starting database settings migration..."
+    tower-manage migrate_to_database_settings --skip-errors
+    
     echo "Starting ansible tower services..."
+    mv /etc/default/ansible-tower.bak /etc/default/ansible-tower
     ansible-tower-service start
     
     sleep inf & wait
